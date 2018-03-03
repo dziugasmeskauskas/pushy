@@ -7,7 +7,6 @@ export default class App extends React.Component {
 
   constructor() {
     super()
-
     this.state = {
       isEnabled: false,
       connected: false,
@@ -38,10 +37,11 @@ export default class App extends React.Component {
         this.setState({ connected: false })
       })
     })
+
   }
 
   alert (message) {
-    ToastAndroid.show(message, ToastAndroid.SHORT);
+    ToastAndroid.show(message, ToastAndroid.SHORT)
   }
 
   connect (device) {
@@ -49,17 +49,16 @@ export default class App extends React.Component {
       .then((res) => {
         this.alert(`Connected to ${device.name}`)
         this.setState({ device, connected: true })
-
-        BluetoothSerial.write('hello pushy')
       })
-      .catch((err) => {
-        this.alert(err.message)
+      .catch((err) => this.alert(err.message))
+  }
 
-        // setTimeout(() => {
-        //   this.alert('Reconnecting...')
-        //   this.connect(device)
-        // }, 1000)
-      })
+  forward () {
+    BluetoothSerial.write('forward')
+  }
+
+  backward () {
+     BluetoothSerial.write('backward')
   }
 
   render() {
@@ -67,29 +66,29 @@ export default class App extends React.Component {
       <View style={styles.container}>
         <View style={styles.camera}><Text>Camera feed</Text></View>
         <View style={styles.column}>
-          <TouchableOpacity style={[styles.arrow, styles.up]} onPress={()=>{alert("Up")}}>
+          <TouchableOpacity style={[styles.arrow, styles.up]} onPress={this.forward}>
             <Image source={require("./img/up.png")}/>
           </TouchableOpacity>
         </View>
         <View style={[styles.column, styles.justifyBetween]}>
-          <TouchableOpacity style={[styles.arrow, styles.bottom]} onPress={()=>{alert("left")}}>
+          <TouchableOpacity style={[styles.arrow, styles.bottom]} onPress={this.backward} >
             <Image source={require("./img/left.png")}/>
           </TouchableOpacity>
           <Button
             onPress={()=>{alert('connect')}}
             title="Connect"
           />
-          <TouchableOpacity style={[styles.arrow, styles.bottom]} onPress={()=>{alert("right")}}>
+          <TouchableOpacity style={[styles.arrow, styles.bottom]} >
             <Image source={require("./img/right.png")}/>
           </TouchableOpacity>
         </View>
         <View style={styles.column}>
-          <TouchableOpacity style={[styles.arrow, styles.bottom]} onPress={()=>{alert("down")}}>
+          <TouchableOpacity style={[styles.arrow, styles.bottom]} >
             <Image source={require("./img/down.png")}/>
           </TouchableOpacity>
         </View>
       </View>
-    );
+    )
   }
 }
 
