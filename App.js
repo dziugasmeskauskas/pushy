@@ -1,18 +1,70 @@
-import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native';
-import { Button } from 'react-native';
-import { BleManager } from 'react-native-ble-plx';
+import React from 'react'
+import { StyleSheet, Text, View, TouchableOpacity, ToastAndroid, Image } from 'react-native'
+import { Button } from 'react-native'
+import BluetoothSerial from 'react-native-bluetooth-serial'
 
 export default class App extends React.Component {
 
   constructor() {
     super()
-    this.manager = new BleManager()
+
+    this.state = {
+      isEnabled: false,
+      connected: false,
+      device: null,
+    }
+  }
+
+  componentDidMount () {
+    Promise.all([
+      BluetoothSerial.isEnabled(),
+      BluetoothSerial.list()
+    ])
+    .then((values) => {
+      const [ isEnabled, devices ] = values
+
+      devices.forEach(device => {
+        if (device.name === 'pushy') this.connect(device)
+      })
+      this.setState({ isEnabled })
+    })
+
+    BluetoothSerial.on('bluetoothEnabled', () => this.alert('Bluetooth enabled'))
+    BluetoothSerial.on('bluetoothDisabled', () => this.alert('Bluetooth disabled'))
+    BluetoothSerial.on('error', (err) => this.alert(`Error: ${err.message}`))
+    BluetoothSerial.on('connectionLost', () => {
+      if (this.state.device) {
+        this.alert(`Connection to device ${this.state.device.name} has been lost`)
+      }
+      this.setState({ connected: false })
+    })
+
+    BluetoothSerial.on('data', (message) => this.parseMessage(message.data))
 
   }
 
+  alert (message) {
+    console.log(message)
+    ToastAndroid.show(message, ToastAndroid.SHORT);
+  }
 
+  connect (device) {
+    BluetoothSerial.connect(device.id)
+      .then((res) => {
+        this.alert(`Connected to ${device.name}`)
+        this.setState({ device, connected: true })
 
+        BluetoothSerial.subscribe("a*6f")
+      })
+      .catch((err) => {
+        this.alert(err.message)
+
+        // setTimeout(() => {
+        //   this.alert('Reconnecting...')
+        //   this.connect(device)
+        // }, 1000)
+      })
+  }
 
   render() {
     return (
@@ -68,10 +120,4 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center'
   }
-});
-
-
-const left = () => {
-
-}
-
+})
