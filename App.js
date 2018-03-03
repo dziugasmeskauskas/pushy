@@ -7,6 +7,7 @@ export default class App extends React.Component {
 
   constructor() {
     super()
+
     this.state = {
       isEnabled: false,
       connected: false,
@@ -37,7 +38,6 @@ export default class App extends React.Component {
         this.setState({ connected: false })
       })
     })
-
   }
 
   alert (message) {
@@ -53,12 +53,8 @@ export default class App extends React.Component {
       .catch((err) => this.alert(err.message))
   }
 
-  forward () {
-    BluetoothSerial.write('forward')
-  }
-
-  backward () {
-     BluetoothSerial.write('backward')
+  write (message) {
+    BluetoothSerial.write(message)
   }
 
   render() {
@@ -66,24 +62,20 @@ export default class App extends React.Component {
       <View style={styles.container}>
         <View style={styles.camera}><Text>Camera feed</Text></View>
         <View style={styles.column}>
-          <TouchableOpacity style={[styles.arrow, styles.up]} onPress={this.forward}>
+          <TouchableOpacity style={[styles.arrow, styles.up]} onPress={this.write.bind(null, 'forward')}>
             <Image source={require("./img/up.png")}/>
           </TouchableOpacity>
         </View>
         <View style={[styles.column, styles.justifyBetween]}>
-          <TouchableOpacity style={[styles.arrow, styles.bottom]} onPress={this.backward} >
+          <TouchableOpacity style={[styles.arrow, styles.bottom]} onPress={this.write.bind(null, 'left')}>
             <Image source={require("./img/left.png")}/>
           </TouchableOpacity>
-          <Button
-            onPress={()=>{alert('connect')}}
-            title="Connect"
-          />
-          <TouchableOpacity style={[styles.arrow, styles.bottom]} >
+          <TouchableOpacity style={[styles.arrow, styles.bottom]} onPress={this.write.bind(null, 'right')}>
             <Image source={require("./img/right.png")}/>
           </TouchableOpacity>
         </View>
         <View style={styles.column}>
-          <TouchableOpacity style={[styles.arrow, styles.bottom]} >
+          <TouchableOpacity style={[styles.arrow, styles.bottom]} onPress={this.write.bind(null, 'backward')}>
             <Image source={require("./img/down.png")}/>
           </TouchableOpacity>
         </View>
